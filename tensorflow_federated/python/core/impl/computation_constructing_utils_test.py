@@ -954,8 +954,8 @@ class CreateFederatedZipTest(absltest.TestCase):
     value = computation_building_blocks.Data('v', value_type)
     comp = computation_constructing_utils.create_federated_zip(value)
     self.assertEqual(
-        comp.tff_repr,
-        'federated_map(<(arg -> arg),(let value=v in federated_zip_at_clients(<value[0],value[1]>))>)'
+        comp.tff_repr, 'federated_map(<(x -> <x[0],x[1]>),'
+        'federated_map(<(arg -> arg),(let value=v in federated_zip_at_clients(<value[0],value[1]>))>)>)'
     )
     self.assertEqual(str(comp.type_signature), '{<int32,int32>}@CLIENTS')
 
@@ -965,8 +965,8 @@ class CreateFederatedZipTest(absltest.TestCase):
     tup = computation_building_blocks.Tuple((value, value))
     comp = computation_constructing_utils.create_federated_zip(tup)
     self.assertEqual(
-        comp.tff_repr,
-        'federated_map(<(arg -> arg),(let value=<v,v> in federated_zip_at_clients(<value[0],value[1]>))>)'
+        comp.tff_repr, 'federated_map(<(x -> <x[0],x[1]>),'
+        'federated_map(<(arg -> arg),(let value=<v,v> in federated_zip_at_clients(<value[0],value[1]>))>)>)'
     )
     self.assertEqual(str(comp.type_signature), '{<int32,int32>}@CLIENTS')
 
@@ -978,8 +978,8 @@ class CreateFederatedZipTest(absltest.TestCase):
     value = computation_building_blocks.Data('v', value_type)
     comp = computation_constructing_utils.create_federated_zip(value)
     self.assertEqual(
-        comp.tff_repr,
-        'federated_map(<(arg -> arg),(let value=v in federated_zip_at_clients(<a=value[0],b=value[1]>))>)'
+        comp.tff_repr, 'federated_map(<(x -> <a=x[0],b=x[1]>),'
+        'federated_map(<(arg -> arg),(let value=v in federated_zip_at_clients(<value[0],value[1]>))>)>)'
     )
     self.assertEqual(str(comp.type_signature), '{<a=int32,b=int32>}@CLIENTS')
 
@@ -989,8 +989,8 @@ class CreateFederatedZipTest(absltest.TestCase):
     tup = computation_building_blocks.Tuple((('a', value), ('b', value)))
     comp = computation_constructing_utils.create_federated_zip(tup)
     self.assertEqual(
-        comp.tff_repr,
-        'federated_map(<(arg -> arg),(let value=<a=v,b=v> in federated_zip_at_clients(<a=value[0],b=value[1]>))>)'
+        comp.tff_repr, 'federated_map(<(x -> <a=x[0],b=x[1]>),'
+        'federated_map(<(arg -> arg),(let value=<a=v,b=v> in federated_zip_at_clients(<value[0],value[1]>))>)>)'
     )
     self.assertEqual(str(comp.type_signature), '{<a=int32,b=int32>}@CLIENTS')
 
@@ -1005,12 +1005,14 @@ class CreateFederatedZipTest(absltest.TestCase):
     # pylint: disable=bad-continuation
     self.assertEqual(
         comp.tff_repr,
-        'federated_map(<'
+        'federated_map(<(x -> <x[0],x[1],x[2]>),'
+          'federated_map(<'
             '(arg -> (let comps=<(arg -> arg)(arg[0]),arg[1]> in <comps[0][0],comps[0][1],comps[1]>)),'
-            '(let value=v in federated_zip_at_clients(<'
-                'federated_zip_at_clients(<value[0],value[1]>),'
-                'value[2]'
-            '>))'
+              '(let value=v in federated_zip_at_clients(<'
+                  'federated_zip_at_clients(<value[0],value[1]>),'
+                  'value[2]'
+              '>))'
+          '>)'
         '>)'
     )
     # pylint: enable=bad-continuation
@@ -1027,12 +1029,14 @@ class CreateFederatedZipTest(absltest.TestCase):
     # pylint: disable=bad-continuation
     self.assertEqual(
         comp.tff_repr,
-        'federated_map(<'
+        'federated_map(<(x -> <x[0],x[1],x[2]>),'
+          'federated_map(<'
             '(arg -> (let comps=<(arg -> arg)(arg[0]),arg[1]> in <comps[0][0],comps[0][1],comps[1]>)),'
-            '(let value=<v,v,v> in federated_zip_at_clients(<'
-                'federated_zip_at_clients(<value[0],value[1]>),'
-                'value[2]'
-            '>))'
+              '(let value=<v,v,v> in federated_zip_at_clients(<'
+                  'federated_zip_at_clients(<value[0],value[1]>),'
+                  'value[2]'
+              '>))'
+          '>)'
         '>)'
     )
     # pylint: enable=bad-continuation
@@ -1053,12 +1057,14 @@ class CreateFederatedZipTest(absltest.TestCase):
     # pylint: disable=bad-continuation
     self.assertEqual(
         comp.tff_repr,
-        'federated_map(<'
-            '(arg -> (let comps=<(arg -> arg)(arg[0]),arg[1]> in <a=comps[0][0],b=comps[0][1],c=comps[1]>)),'
-            '(let value=v in federated_zip_at_clients(<'
-                'federated_zip_at_clients(<a=value[0],b=value[1]>),'
-                'c=value[2]'
-            '>))'
+        'federated_map(<(x -> <a=x[0],b=x[1],c=x[2]>),'
+          'federated_map(<'
+            '(arg -> (let comps=<(arg -> arg)(arg[0]),arg[1]> in <comps[0][0],comps[0][1],comps[1]>)),'
+              '(let value=v in federated_zip_at_clients(<'
+                  'federated_zip_at_clients(<value[0],value[1]>),'
+                  'value[2]'
+              '>))'
+          '>)'
         '>)'
     )
     # pylint: enable=bad-continuation
@@ -1079,12 +1085,14 @@ class CreateFederatedZipTest(absltest.TestCase):
     # pylint: disable=bad-continuation
     self.assertEqual(
         comp.tff_repr,
-        'federated_map(<'
-            '(arg -> (let comps=<(arg -> arg)(arg[0]),arg[1]> in <a=comps[0][0],b=comps[0][1],c=comps[1]>)),'
-            '(let value=<a=v,b=v,c=v> in federated_zip_at_clients(<'
-                'federated_zip_at_clients(<a=value[0],b=value[1]>),'
-                'c=value[2]'
-            '>))'
+        'federated_map(<(x -> <a=x[0],b=x[1],c=x[2]>),'
+          'federated_map(<'
+            '(arg -> (let comps=<(arg -> arg)(arg[0]),arg[1]> in <comps[0][0],comps[0][1],comps[1]>)),'
+              '(let value=<a=v,b=v,c=v> in federated_zip_at_clients(<'
+                  'federated_zip_at_clients(<value[0],value[1]>),'
+                  'value[2]'
+              '>))'
+          '>)'
         '>)'
     )
     # pylint: enable=bad-continuation
@@ -1108,12 +1116,14 @@ class CreateFederatedZipTest(absltest.TestCase):
     # pylint: disable=bad-continuation
     self.assertEqual(
         comp.tff_repr,
-        'federated_map(<'
+        'federated_map(<(x -> <x[0],x[1],x[2]>),'
+          'federated_map(<'
             '(arg -> (let comps=<(arg -> arg)(arg[0]),arg[1]> in <comps[0][0],comps[0][1],comps[1]>)),'
-            '(let value=v in federated_zip_at_clients(<'
-                'federated_zip_at_clients(<value[0],value[1]>),'
-                'value[2]'
-            '>))'
+              '(let value=v in federated_zip_at_clients(<'
+                  'federated_zip_at_clients(<value[0],value[1]>),'
+                  'value[2]'
+              '>))'
+          '>)'
         '>)'
     )
     # pylint: enable=bad-continuation
@@ -1135,12 +1145,14 @@ class CreateFederatedZipTest(absltest.TestCase):
     # pylint: disable=bad-continuation
     self.assertEqual(
         comp.tff_repr,
-        'federated_map(<'
+        'federated_map(<(x -> <x[0],x[1],x[2]>),'
+          'federated_map(<'
             '(arg -> (let comps=<(arg -> arg)(arg[0]),arg[1]> in <comps[0][0],comps[0][1],comps[1]>)),'
-            '(let value=<v1,v2,v3> in federated_zip_at_clients(<'
-                'federated_zip_at_clients(<value[0],value[1]>),'
-                'value[2]'
-            '>))'
+              '(let value=<v1,v2,v3> in federated_zip_at_clients(<'
+                  'federated_zip_at_clients(<value[0],value[1]>),'
+                  'value[2]'
+              '>))'
+          '>)'
         '>)'
     )
     # pylint: enable=bad-continuation
@@ -1175,9 +1187,11 @@ class CreateFederatedZipTest(absltest.TestCase):
     # pylint: disable=bad-continuation
     self.assertEqual(
         comp.tff_repr,
-        'federated_apply(<'
+        'federated_apply(<(x -> <x[0],x[1]>),'
+          'federated_apply(<'
             '(arg -> arg),'
-            '(let value=v in federated_zip_at_server(<value[0],value[1]>))'
+              '(let value=v in federated_zip_at_server(<value[0],value[1]>))'
+          '>)'
         '>)'
     )
     # pylint: enable=bad-continuation
@@ -1195,9 +1209,11 @@ class CreateFederatedZipTest(absltest.TestCase):
     # pylint: disable=bad-continuation
     self.assertEqual(
         comp.tff_repr,
-        'federated_apply(<'
-            '(arg -> arg),'
-            '(let value=v in federated_zip_at_server(<a=value[0],b=value[1]>))'
+        'federated_apply(<(x -> <a=x[0],b=x[1]>),'
+          'federated_apply(<'
+          '(arg -> arg),'
+              '(let value=v in federated_zip_at_server(<value[0],value[1]>))'
+          '>)'
         '>)'
     )
     # pylint: enable=bad-continuation
@@ -1215,12 +1231,14 @@ class CreateFederatedZipTest(absltest.TestCase):
     # pylint: disable=bad-continuation
     self.assertEqual(
         comp.tff_repr,
-        'federated_apply(<'
+        'federated_apply(<(x -> <x[0],x[1],x[2]>),'
+          'federated_apply(<'
             '(arg -> (let comps=<(arg -> arg)(arg[0]),arg[1]> in <comps[0][0],comps[0][1],comps[1]>)),'
-            '(let value=v in federated_zip_at_server(<'
-                'federated_zip_at_server(<value[0],value[1]>),'
-                'value[2]'
-            '>))'
+              '(let value=v in federated_zip_at_server(<'
+                  'federated_zip_at_server(<value[0],value[1]>),'
+                  'value[2]'
+              '>))'
+          '>)'
         '>)'
     )
     # pylint: enable=bad-continuation
@@ -1241,12 +1259,14 @@ class CreateFederatedZipTest(absltest.TestCase):
     # pylint: disable=bad-continuation
     self.assertEqual(
         comp.tff_repr,
-        'federated_apply(<'
-            '(arg -> (let comps=<(arg -> arg)(arg[0]),arg[1]> in <a=comps[0][0],b=comps[0][1],c=comps[1]>)),'
-            '(let value=v in federated_zip_at_server(<'
-                'federated_zip_at_server(<a=value[0],b=value[1]>),'
-                'c=value[2]'
-            '>))'
+        'federated_apply(<(x -> <a=x[0],b=x[1],c=x[2]>),'
+          'federated_apply(<'
+            '(arg -> (let comps=<(arg -> arg)(arg[0]),arg[1]> in <comps[0][0],comps[0][1],comps[1]>)),'
+              '(let value=v in federated_zip_at_server(<'
+                  'federated_zip_at_server(<value[0],value[1]>),'
+                  'value[2]'
+              '>))'
+          '>)'
         '>)'
     )
     # pylint: enable=bad-continuation
@@ -1270,12 +1290,14 @@ class CreateFederatedZipTest(absltest.TestCase):
     # pylint: disable=bad-continuation
     self.assertEqual(
         comp.tff_repr,
-        'federated_apply(<'
+        'federated_apply(<(x -> <x[0],x[1],x[2]>),'
+          'federated_apply(<'
             '(arg -> (let comps=<(arg -> arg)(arg[0]),arg[1]> in <comps[0][0],comps[0][1],comps[1]>)),'
-            '(let value=v in federated_zip_at_server(<'
-                'federated_zip_at_server(<value[0],value[1]>),'
-                'value[2]'
-            '>))'
+              '(let value=v in federated_zip_at_server(<'
+                  'federated_zip_at_server(<value[0],value[1]>),'
+                  'value[2]'
+              '>))'
+          '>)'
         '>)'
     )
     # pylint: enable=bad-continuation
@@ -1358,6 +1380,67 @@ class CreateSequenceSumTest(absltest.TestCase):
     comp = computation_constructing_utils.create_sequence_sum(value)
     self.assertEqual(comp.tff_repr, 'sequence_sum(v)')
     self.assertEqual(str(comp.type_signature), 'int32')
+
+
+class ConstructNamingFunctionTest(absltest.TestCase):
+
+  def test_construct_naming_function_raises_on_none(self):
+    with self.assertRaises(TypeError):
+      computation_constructing_utils.construct_naming_function(None, ['a'])
+
+  def test_construct_naming_function_raises_wrong_type(self):
+    with self.assertRaises(TypeError):
+      computation_constructing_utils.construct_naming_function(
+          computation_types.to_type(tf.int32), ['a'])
+
+  def test_construct_naming_function_raises_on_naked_string(self):
+    ntt = computation_types.NamedTupleType([tf.int32])
+    with self.assertRaises(TypeError):
+      computation_constructing_utils.construct_naming_function(ntt, 'a')
+
+  def test_construct_naming_function_raises_list_of_ints(self):
+    ntt = computation_types.NamedTupleType([tf.int32])
+    with self.assertRaises(TypeError):
+      computation_constructing_utils.construct_naming_function(ntt, [1])
+
+  def test_construct_naming_function_raises_wrong_list_length(self):
+    ntt = computation_types.NamedTupleType([tf.int32])
+    with self.assertRaises(ValueError):
+      computation_constructing_utils.construct_naming_function(ntt, ['a', 'b'])
+
+  def test_construct_naming_function_constructs_function_of_correct_type_from_unnamed_tuple(
+      self):
+    ntt = computation_types.NamedTupleType([tf.int32, tf.float32])
+    naming_fxn = computation_constructing_utils.construct_naming_function(
+        ntt, ['a', 'b'])
+    expected_function_type = computation_types.FunctionType(
+        [tf.int32, tf.float32], [('a', tf.int32), ('b', tf.float32)])
+    self.assertEqual(expected_function_type, naming_fxn.type_signature)
+
+  def test_construct_naming_function_constructs_function_of_correct_type_from_named_tuple(
+      self):
+    ntt = computation_types.NamedTupleType([('c', tf.int32), ('d', tf.float32)])
+    naming_fxn = computation_constructing_utils.construct_naming_function(
+        ntt, ['a', 'b'])
+    expected_function_type = computation_types.FunctionType([('c', tf.int32),
+                                                             ('d', tf.float32)],
+                                                            [('a', tf.int32),
+                                                             ('b', tf.float32)])
+    self.assertEqual(expected_function_type, naming_fxn.type_signature)
+
+  def test_construct_naming_function_only_names_unnamed_tuple(self):
+    ntt = computation_types.NamedTupleType([tf.int32, tf.float32])
+    naming_fxn = computation_constructing_utils.construct_naming_function(
+        ntt, ['a', 'b'])
+    self.assertEqual(naming_fxn.tff_repr, '(x -> <a=x[0],b=x[1]>)')
+
+  def test_construct_naming_function_only_overwrites_existing_names_in_tuple(
+      self):
+    ntt = computation_types.NamedTupleType([('c', tf.int32), ('d', tf.float32)])
+    naming_fxn = computation_constructing_utils.construct_naming_function(
+        ntt, ['a', 'b'])
+    self.assertEqual(naming_fxn.tff_repr, '(x -> <a=x[0],b=x[1]>)')
+
 
 if __name__ == '__main__':
   absltest.main()
