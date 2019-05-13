@@ -53,6 +53,7 @@ py_library(
         "//tensorflow_federated/python/common_libs:py_typecheck",
         "//tensorflow_federated/python/common_libs:serialization_utils",
         "//tensorflow_federated/python/core/api:computation_types",
+        "//third_party/tensorflow_federated/python/tensorflow_libs:graph_merge",
     ],
 )
 
@@ -69,6 +70,7 @@ py_test(
         "//tensorflow_federated/python/common_libs:anonymous_tuple",
         "//tensorflow_federated/python/common_libs:test",
         "//tensorflow_federated/python/core/api:computation_types",
+        "//third_party/py/numpy",
     ],
 )
 
@@ -340,8 +342,10 @@ py_library(
         "//tensorflow_federated/proto/v0:tensorflow_federated_v0_py_pb2",
         "//tensorflow_federated/python/common_libs:anonymous_tuple",
         "//tensorflow_federated/python/common_libs:py_typecheck",
+        "//tensorflow_federated/python/common_libs:serialization_utils",
         "//tensorflow_federated/python/core/api:computation_types",
         "//tensorflow_federated/python/core/api:typed_object",
+        "//third_party/tensorflow_federated/python/tensorflow_libs:graph_merge",
     ],
 )
 
@@ -350,6 +354,7 @@ py_test(
     size = "small",
     srcs = ["graph_utils_test.py"],
     deps = [
+        ":computation_building_blocks",
         ":computation_impl",
         ":context_stack_impl",
         ":graph_utils",
