@@ -723,6 +723,46 @@ def uniquify_references(comp):
   return new_comp
 
 
+def inline_block_locals(comp):
+  """Inlines all block local variables.
+
+  Notice that this transform is not necessarily safe; it should only be called
+  after we have uniquified all `computation_building_blocks.Reference` names,
+  since we may be moving computations with unbound references under constructs
+  which bind those references.
+
+  Args:
+    comp: Instance of `computation_building_blocks.ComputationBuildingBlock`
+      whose blocks we wish to inline.
+
+  Returns:
+    A possibly different `computation_building_blocks.ComputationBuildingBlock`
+    containing the same logic as `comp`, but with all blocks inlined.
+  """
+  py_typecheck.check_type(comp,
+                          computation_building_blocks.ComputationBuildingBlock)
+
+  def _transform(comp, symbol_tree):
+    """Inline transform function."""
+    if isinstance(comp, computation_building_blocks.Reference):
+      value_to_use = symbol_tree.get_payload_with_name(comp.name).value
+      if value_to_use is not None:
+        # This identifies a variable bound by a Block as opposed to a Lambda.
+        return value_to_use
+      else:
+        return comp
+    elif isinstance(comp, computation_building_blocks.Block):
+      # All locals have been inlined, so the block is equivalent to its result.
+      return comp.result
+    return comp
+
+  empty_tree = transformation_utils.SymbolTree(
+      transformation_utils.ReferenceCounter)
+
+  return transformation_utils.transform_postorder_with_symbol_bindings(
+      comp, _transform, empty_tree)
+
+
 def _is_called_intrinsic(comp, uri):
   """Returns `True` if `comp` is a called intrinsic with the `uri` or `uri`s.
 
